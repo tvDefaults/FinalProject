@@ -15,4 +15,5 @@ SOURCES += \
         main.cpp
 
 DISTFILES += \
-    .gitignore
+    .gitignore \
+    myHelp.txt

@@ -1,0 +1,14 @@
+git status
+#files in red
+
+git add .
+git status
+#files in green
+
+git commit -m "------"
+git status
+#no files
+
+git push
+git status
+#no files
