@@ -49,7 +49,7 @@ public:
 
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Body Invasion");
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Game V1");
 
     sf::Texture playerTexture;
     if (!playerTexture.loadFromFile("b_cell.png")) {
