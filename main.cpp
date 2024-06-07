@@ -1,49 +1,77 @@
-#include <iostream>
-#include <memory>
+#include <SFML/Graphics.hpp>
+#include <SFMl/Graphics.hpp>
 #include <vector>
-#include <cmath>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
+#include <cstdlib>
 
-#include <SFML/Graphics.hpp>
-class Player{
+class Antibody {
+public:
+    sf::Sprite sprite;
 
-};
-class Enemy
-{
-
-};
-
-int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Body Invasion");
-
-    sf::Texture playerTexture, antibodyTexture, backgroundTexture, virusTexture, bacteriaTexture, mAbsTexture, heartTexture;
-    if (!playerTexture.loadFromFile("B_Cell.png") ||
-        !antibodyTexture.loadFromFile("antiBody.png") || // NEED TO REMODEL THE PIXEL ART
-        //!backgroundTexture.loadFromFile("backGround.png") || //Failed to load image "backGround.png". Reason: Unable to open file
-        !virusTexture.loadFromFile("virus.png") ||
-        !bacteriaTexture.loadFromFile("bacteria.png") ||
-        !mAbsTexture.loadFromFile("mAbs.png") ||
-        !heartTexture.loadFromFile("heart.png")) {
-        return -1;
+    Antibody(const sf::Texture& texture, float x, float y) {
+        sprite.setTexture(texture);
+        sprite.setPosition(x, y);
     }
 
-    Player player(playerTexture, antibodyTexture, heartTexture);
-    std::vector<Enemy*> enemies;
-    int maxEnemies = 3;  // Max number of enemies allowed on the screen
-    int mAbsCount = 0;   // Number of mAbs on screen
-    sf::Sprite playerSprite(player);
-    playerSprite.setPosition(400, 500);  // Starting position
+    void update() {
+        sprite.move(0, -10);
+    }
+};
 
-    // Main game loop
+class Player {
+public:
+    sf::Sprite sprite;
+    std::vector<Antibody> antibodies;
+    sf::Texture antibodyTexture;
+
+    Player(const sf::Texture& texture, const sf::Texture& antibodyTex) {
+        sprite.setTexture(texture);
+        antibodyTexture = antibodyTex;
+        sprite.setPosition(400, 500);
+    }
+
+    void move(sf::Vector2f direction) {
+        sprite.move(direction);
+    }
+
+    void shoot() {
+        Antibody newAntibody(antibodyTexture, sprite.getPosition().x + sprite.getGlobalBounds().width / 2, sprite.getPosition().y);
+        antibodies.push_back(newAntibody);
+    }
+
+    void update() {
+        for (auto& antibody : antibodies) {
+            antibody.update();
+        }
+        // Remove off-screen antibodies
+       // antibodies.erase(std::remove_if(antibodies.begin(), antibodies.end(), [](const Antibody& a) { return a.sprite.getPosition().y < 0; }), antibodies.end());
+    }
+};
+
+
+
+int main() {
+    sf::RenderWindow window(sf::VideoMode(810, 810), "Game V1.1");
+
+    sf::Texture playerTexture;
+    if (!playerTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/B_Cell.png")) {
+        return -1;
+    }
+    sf::Sprite playerSprite(playerTexture);
+    playerSprite.setPosition(200, 200);
+    //playerSprite.setColor(sf::Color(0, 255, 0)); // green
+    //window.draw(playerSprite);
+   // window.display();
+
+
+
     while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event)) {
+        while (window.pollEvent(event))
+        {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
 
-        // Player movement
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
             playerSprite.move(-5.f, 0.f);
         }
@@ -51,13 +79,10 @@ int main() {
             playerSprite.move(5.f, 0.f);
         }
 
-        // Clear the window with a black color
         window.clear(sf::Color::Black);
 
-        // Draw the player
         window.draw(playerSprite);
 
-        // Display everything on the window
         window.display();
     }
 
