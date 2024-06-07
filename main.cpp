@@ -12,7 +12,7 @@ public:
 
     Antibody(const sf::Texture& texture, float x, float y, int v) {
         sprite.setTexture(texture);
-        sprite.setScale(0.1f,0.1f);
+        sprite.setScale(0.3f,0.3f);
         sprite.setPosition(x, y);
         lastMove = clock();
         speed=v;
@@ -26,7 +26,7 @@ public:
         if(sprite.getPosition().y <10)
         {
             sprite.setPosition(sprite.getPosition().x,10);
-            sprite.setScale(0.05f,0.05f);
+            sprite.setScale(0.1f,0.1f);
         }
     }
 };
@@ -79,6 +79,16 @@ public:
     }
 };
 
+class Enemy{
+
+};
+
+class Bacteria: Enemy{
+
+};
+class Virus: Enemy{
+
+};
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 800), "Game V1.1");
@@ -87,7 +97,11 @@ int main() {
     if (!playerTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/B_Cell.png")) {
         return -1;
     }
-    Player player(playerTexture, playerTexture,600);
+    sf::Texture antibodyTexture;
+    if (!antibodyTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/antiBody.png")) {
+        return -1;
+    }
+    Player player(playerTexture, antibodyTexture,600);
 
     //sf::Sprite playerSprite(playerTexture);
     //playerSprite.setPosition(200, 200);
