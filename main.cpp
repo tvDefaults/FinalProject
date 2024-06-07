@@ -2,18 +2,32 @@
 #include <SFMl/Graphics.hpp>
 #include <vector>
 #include <cstdlib>
+//#include <ctime>
 
 class Antibody {
 public:
     sf::Sprite sprite;
+    clock_t lastMove;
+    int speed;
 
-    Antibody(const sf::Texture& texture, float x, float y) {
+    Antibody(const sf::Texture& texture, float x, float y, int v) {
         sprite.setTexture(texture);
+        sprite.setScale(0.1f,0.1f);
         sprite.setPosition(x, y);
+        lastMove = clock();
+        speed=v;
     }
 
     void update() {
-        sprite.move(0, -10);
+        if(lastMove+speed<clock())
+        {
+            sprite.move(0, -0.1);
+        }
+        if(sprite.getPosition().y <10)
+        {
+            sprite.setPosition(sprite.getPosition().x,10);
+            sprite.setScale(0.05f,0.05f);
+        }
     }
 };
 
@@ -22,20 +36,38 @@ public:
     sf::Sprite sprite;
     std::vector<Antibody> antibodies;
     sf::Texture antibodyTexture;
+    float min_x;
+    float max_x;
+    clock_t lastShot;
 
-    Player(const sf::Texture& texture, const sf::Texture& antibodyTex) {
+    Player(const sf::Texture& texture, const sf::Texture& antibodyTex,float range_x) {
         sprite.setTexture(texture);
         antibodyTexture = antibodyTex;
-        sprite.setPosition(400, 500);
+        sprite.setScale(0.3f,0.3f);
+        sprite.setPosition(200, 600);
+        min_x =0;
+        lastShot =clock();
+        max_x=range_x;
     }
-
-    void move(sf::Vector2f direction) {
+    void move(sf::Vector2f direction)
+    {
         sprite.move(direction);
-    }
 
-    void shoot() {
-        Antibody newAntibody(antibodyTexture, sprite.getPosition().x + sprite.getGlobalBounds().width / 2, sprite.getPosition().y);
-        antibodies.push_back(newAntibody);
+        if (sprite.getPosition().x <min_x){
+            sprite.setPosition(0,600);
+        }
+        if (sprite.getPosition().x>max_x)
+        {
+            sprite.setPosition(max_x,600);
+        }
+    }
+    void fire(int speed)
+    {
+        if(lastShot+200<clock()){
+        Antibody antibody(antibodyTexture, sprite.getPosition().x + sprite.getGlobalBounds().width / 2, sprite.getPosition().y,speed);
+        antibodies.push_back(antibody);
+        lastShot= clock();
+        }
     }
 
     void update() {
@@ -48,21 +80,18 @@ public:
 };
 
 
-
 int main() {
-    sf::RenderWindow window(sf::VideoMode(810, 810), "Game V1.1");
+    sf::RenderWindow window(sf::VideoMode(800, 800), "Game V1.1");
 
     sf::Texture playerTexture;
     if (!playerTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/B_Cell.png")) {
         return -1;
     }
-    sf::Sprite playerSprite(playerTexture);
-    playerSprite.setPosition(200, 200);
-    //playerSprite.setColor(sf::Color(0, 255, 0)); // green
-    //window.draw(playerSprite);
-   // window.display();
+    Player player(playerTexture, playerTexture,600);
 
-
+    //sf::Sprite playerSprite(playerTexture);
+    //playerSprite.setPosition(200, 200);
+    //player.setScale(0.3f,0.3f);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -73,17 +102,31 @@ int main() {
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            playerSprite.move(-5.f, 0.f);
+           // playerSprite.move(-0.5f, 0.f);
+            player.move(sf::Vector2f(-0.5f,0.f));
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            playerSprite.move(5.f, 0.f);
+            //playerSprite.move(0.5f, 0.f);
+            player.move(sf::Vector2f(0.5f,0.f));
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            player.fire(5);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        {
+            player.fire(50);
         }
 
-        window.clear(sf::Color::Black);
+       window.clear(sf::Color::Black);
 
-        window.draw(playerSprite);
+       window.draw(player.sprite);
+       for(int i=0; i < player.antibodies.size(); i++){
+           window.draw(player.antibodies[i].sprite);
+       }
+       player.update();
 
-        window.display();
+       window.display();
     }
 
     return 0;
