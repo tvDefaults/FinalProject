@@ -2,52 +2,137 @@
 #include <SFMl/Graphics.hpp>
 #include <vector>
 #include <cstdlib>
+#include <iostream>
 //#include <ctime>
+
+class Pathogen {
+public:
+    sf::Sprite sprite;
+    clock_t lastMove;
+    int speed;
+    float delta_y;
+
+    Pathogen(const sf::Texture& texture, float x, float y, int v) {
+        sprite.setTexture(texture);
+        sprite.setScale(0.2f,0.2f);
+        sprite.setPosition(x, y);
+        lastMove = clock();
+        speed=v;
+        delta_y = 0.1;
+        //delta_y=0;
+    }
+
+    void update() {
+        if(lastMove+speed<clock())
+        {
+            sprite.move(0, delta_y);
+        }
+        if(sprite.getPosition().y >800)
+        {
+            sprite.setPosition(sprite.getPosition().x,800);
+            sprite.setScale(0.1f,0.1f);
+        }
+    }
+};
+
+class RBC {
+public:
+    sf::Sprite sprite;
+    float scale =0.15;
+
+    RBC(const sf::Texture& texture, float x, float y) {
+        sprite.setTexture(texture);
+        sprite.setScale(scale,scale);
+        sprite.setPosition(x, y);
+    }
+
+    bool checkCollision(Pathogen &p)
+    {
+        bool result = false;
+        sf::FloatRect p_bound = p.sprite.getGlobalBounds();
+        sf::FloatRect a_bound = sprite.getGlobalBounds();
+        if (a_bound.intersects(p_bound))
+        {
+            result = true;
+        }
+        //std::cout << a_bound.left <<std::endl;
+        return result;
+    }
+};
 
 class Antibody {
 public:
     sf::Sprite sprite;
     clock_t lastMove;
     int speed;
+    float delta_y;
+    float scale =0.3;
 
     Antibody(const sf::Texture& texture, float x, float y, int v) {
         sprite.setTexture(texture);
-        sprite.setScale(0.3f,0.3f);
+        sprite.setScale(scale,scale);
         sprite.setPosition(x, y);
         lastMove = clock();
         speed=v;
+        delta_y = -0.1;
     }
 
-    void update() {
+    bool update() {
+        bool result = false;
         if(lastMove+speed<clock())
         {
-            sprite.move(0, -0.1);
+            sprite.move(0, delta_y);
         }
         if(sprite.getPosition().y <10)
         {
-            sprite.setPosition(sprite.getPosition().x,10);
-            sprite.setScale(0.1f,0.1f);
+           // sprite.setPosition(sprite.getPosition().x,10);
+            //sprite.setScale(0.1f,0.1f);
+            result =true;
         }
+        return result;
+    }
+    bool checkCollision(Pathogen &p)
+    {
+        bool result = false;
+        sf::FloatRect p_bound = p.sprite.getGlobalBounds();
+        sf::FloatRect a_bound = sprite.getGlobalBounds();
+        if (a_bound.intersects(p_bound))
+        {
+            delta_y =0;
+            p.delta_y=0;
+            result = true;
+        }
+        //std::cout << a_bound.left <<std::endl;
+        return result;
     }
 };
 
 class Player {
 public:
+    int lives;
     sf::Sprite sprite;
     std::vector<Antibody> antibodies;
+    std::vector<RBC> redbloodcells;
     sf::Texture antibodyTexture;
     float min_x;
     float max_x;
     clock_t lastShot;
+    float scale = 0.3;
 
-    Player(const sf::Texture& texture, const sf::Texture& antibodyTex,float range_x) {
+    Player(const sf::Texture& texture, const sf::Texture& antibodyTex,const sf::Texture& bloodTex,float range_x) {
         sprite.setTexture(texture);
         antibodyTexture = antibodyTex;
-        sprite.setScale(0.3f,0.3f);
+        sprite.setScale(scale,scale);
         sprite.setPosition(200, 600);
         min_x =0;
         lastShot =clock();
         max_x=range_x;
+        lives= 3;
+        for (int i=0; i<lives; i++)
+        {
+            RBC redblood(bloodTex,i*250+50,700);
+            redbloodcells.push_back(redblood);
+        }
     }
     void move(sf::Vector2f direction)
     {
@@ -63,48 +148,72 @@ public:
     }
     void fire(int speed)
     {
-        if(lastShot+200<clock()){
-        Antibody antibody(antibodyTexture, sprite.getPosition().x + sprite.getGlobalBounds().width / 2, sprite.getPosition().y,speed);
+        if(lastShot+500<clock()){
+        Antibody antibody(antibodyTexture, sprite.getPosition().x + sprite.getGlobalBounds().width*scale / 2, sprite.getPosition().y,speed);
         antibodies.push_back(antibody);
         lastShot= clock();
         }
     }
 
     void update() {
+        std::vector<int> list;
+        int idx = 0;
+        list.clear();
         for (auto& antibody : antibodies) {
-            antibody.update();
+            if(antibody.update())
+            {
+                //list.push_back();
+                antibodies.erase(antibodies.begin() + idx);
+
+            }
+            idx++;
         }
         // Remove off-screen antibodies
        // antibodies.erase(std::remove_if(antibodies.begin(), antibodies.end(), [](const Antibody& a) { return a.sprite.getPosition().y < 0; }), antibodies.end());
     }
+
+    bool checkCollision(Pathogen& p)
+    {
+        bool result = false;
+        std::vector<int> list;
+        list.clear();
+        //for (auto& antibody : antibodies) {
+        for(int i=0; i < antibodies.size(); i++)
+        {
+            if (antibodies[i].checkCollision(p))
+            {
+        //        antibodies.erase( antibodies.begin() + i );
+                list.push_back(i);
+                std::cout << "shot" <<std::endl;
+                std::cout << antibodies.size() <<std::endl;
+                result = true;
+            }
+        }
+        for(auto & idx:list )
+        {
+          antibodies.erase( antibodies.begin() + idx );
+        }
+        //------------------------------------
+        list.clear();
+        for(int i=0; i < redbloodcells.size(); i++)
+        {
+            if (redbloodcells[i].checkCollision(p))
+            {
+                list.push_back(i);
+                result = true;
+            }
+        }
+        for(auto & idx:list )
+        {
+            redbloodcells.erase( redbloodcells.begin() + idx );
+        }
+
+        return result;
+        //std::cout << antibodies.size() <<std::endl;
+    }
 };
 
-class Pathogen {
-public:
-    sf::Sprite sprite;
-    clock_t lastMove;
-    int speed;
 
-    Pathogen(const sf::Texture& texture, float x, float y, int v) {
-        sprite.setTexture(texture);
-        sprite.setScale(0.2f,0.2f);
-        sprite.setPosition(x, y);
-        lastMove = clock();
-        speed=v;
-    }
-
-    void update() {
-        if(lastMove+speed<clock())
-        {
-            sprite.move(0, 0.1);
-        }
-        if(sprite.getPosition().y >800)
-        {
-            sprite.setPosition(sprite.getPosition().x,800);
-            sprite.setScale(0.1f,0.1f);
-        }
-    }
-};
 
 class Infection {
 public:
@@ -158,34 +267,12 @@ public:
         // Remove off-screen antibodies
         // antibodies.erase(std::remove_if(antibodies.begin(), antibodies.end(), [](const Antibody& a) { return a.sprite.getPosition().y < 0; }), antibodies.end());
     }
-};
 
-class Enemy{
-public:
-    sf::Sprite sprite;
-
-    Enemy(const sf::Texture&texture,float x, float y)
-    {
-        sprite.setTexture(texture);
-        sprite.setScale(0.4f,0.4f);
-        sprite.setPosition(x,y);
-    }
-};
-
-class Bacteria: Enemy{
-public:
-    Bacteria(sf::Texture& texture, float x, float y): Enemy(texture, x, y ){}
-    void update()
-    {
-
-    }
-
-};
-class Virus: Enemy{
 
 };
 
 int main() {
+    std::vector<int> list;
     sf::RenderWindow window(sf::VideoMode(800, 900), "Game V1.1");
 
     sf::Texture playerTexture;
@@ -200,7 +287,11 @@ int main() {
     if (!bacteriaTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/bacteria.png")) {
         return -1;
     }
-    Player player(playerTexture, antibodyTexture,600);
+    sf::Texture redBloodTexture;
+    if (!redBloodTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/backGround.jpg")) {
+        return -1;
+    }
+    Player player(playerTexture, antibodyTexture,redBloodTexture,600);
     Infection infection(bacteriaTexture,500);
 
     //sf::Sprite playerSprite(playerTexture);
@@ -232,20 +323,36 @@ int main() {
             player.fire(50);
         }
 
-       window.clear(sf::Color::Black);
 
+
+
+       window.clear(sf::Color::Black);
+        list.clear();
         for(int i=0; i < infection.pathogens.size(); i++){
-            window.draw(infection.pathogens[i].sprite);
+
+           if(player.checkCollision(infection.pathogens[i])){
+                //infection.pathogens.erase( infection.pathogens.begin() + i );
+               list.push_back(i);
+            }
+           window.draw(infection.pathogens[i].sprite);
+        }
+        for(auto& idx :list )
+        {
+            infection.pathogens.erase( infection.pathogens.begin() + idx );
         }
         infection.attack(100);
         infection.update();
 
-       window.draw(player.sprite);
+
        for(int i=0; i < player.antibodies.size(); i++){
            window.draw(player.antibodies[i].sprite);
        }
+       for (auto& RBC:player.redbloodcells)
+       {
+           window.draw(RBC.sprite);
+       }
        player.update();
-
+ window.draw(player.sprite);
        window.display();
     }
 
