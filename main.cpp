@@ -113,6 +113,7 @@ public:
     sf::Text gameMessage;
     int lives;
     sf::Sprite sprite;
+    sf::Sprite gameOver;
     std::vector<Antibody> antibodies;
     std::vector<RBC> redbloodcells;
     sf::Texture antibodyTexture;
@@ -121,8 +122,11 @@ public:
     clock_t lastShot;
     float scale = 0.3;
 
-    Player(const sf::Texture& texture, const sf::Texture& antibodyTex,const sf::Texture& bloodTex,float range_x) {
+    Player(const sf::Texture& texture, const sf::Texture& antibodyTex,const sf::Texture& bloodTex,sf::Texture& message,float range_x) {
         sprite.setTexture(texture);
+        gameOver.setTexture(message);
+        gameOver.setPosition(300,300);
+        gameOver.setScale(0.5,0.5);
         antibodyTexture = antibodyTex;
         sprite.setScale(scale,scale);
         sprite.setPosition(200, 600);
@@ -292,26 +296,46 @@ public:
 
 int main() {
     std::vector<int> list;
-    //char path[]= "C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/";
+    char path[]= "C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/";
+    //char hello_world = (char*)malloc(13  sizeof(char));
+    //sprintf(hello_world, "%s %s!", "Hello", "world");
+    char buffer[1000];
+
     sf::RenderWindow window(sf::VideoMode(800, 900), "Body Invasion");
 
+    sprintf(buffer,"%s%s",path,"B_Cell.png");
     sf::Texture playerTexture;
-    if (!playerTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/B_Cell.png")) {
+    //if (!playerTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/B_Cell.png")) {
+    if (!playerTexture.loadFromFile(buffer))
+    {
         return -1;
     }
+    sprintf(buffer,"%s%s",path,"antiBody.png");
     sf::Texture antibodyTexture;
-    if (!antibodyTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/antiBody.png")) {
+   // if (!antibodyTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/antiBody.png"))
+    if (!antibodyTexture.loadFromFile(buffer))
+    {
         return -1;
     }
+    sprintf(buffer,"%s%s",path,"bacteria.png");
     sf::Texture bacteriaTexture;
-    if (!bacteriaTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/bacteria.png")) {
+   // if (!bacteriaTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/bacteria.png"))
+    if (!bacteriaTexture.loadFromFile(buffer)){
         return -1;
     }
+    sprintf(buffer,"%s%s",path,"backGround.jpg");
     sf::Texture redBloodTexture;
-    if (!redBloodTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/backGround.jpg")) {
+    //if (!redBloodTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/backGround.jpg"))
+    if (!redBloodTexture.loadFromFile(buffer)){
         return -1;
     }
-    Player player(playerTexture, antibodyTexture,redBloodTexture,600);
+    sprintf(buffer,"%s%s",path,"game_over.png");
+    sf::Texture gameOverTexture;
+    //if (!gameOverTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/game_over.png")) {
+    if (!gameOverTexture.loadFromFile(buffer)){
+        return -1;
+    }
+    Player player(playerTexture, antibodyTexture,redBloodTexture,gameOverTexture,600);
     Infection infection(bacteriaTexture,500);
 
     //sf::Sprite playerSprite(playerTexture);
@@ -372,6 +396,10 @@ int main() {
        }
        player.update();
        window.draw(player.sprite);
+       if(player.lives<=0)
+       {
+       window.draw(player.gameOver);
+       }
        //window.draw(player.gameMessage);
        window.display();
     }
