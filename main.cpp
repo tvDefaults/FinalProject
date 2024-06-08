@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdlib>
 #include <iostream>
+#include <string.h>
 //#include <ctime>
 
 class Pathogen {
@@ -109,6 +110,7 @@ public:
 
 class Player {
 public:
+    sf::Text gameMessage;
     int lives;
     sf::Sprite sprite;
     std::vector<Antibody> antibodies;
@@ -127,6 +129,13 @@ public:
         min_x =0;
         lastShot =clock();
         max_x=range_x;
+        // sf::Font font;
+        // font.loadFromFile("arial.ttf");
+        // gameMessage.setString("FIGHT AGAINST INFECTION!!");
+        // gameMessage.setPosition(10,10);
+        // gameMessage.setCharacterSize(24);
+        // gameMessage.setFillColor(sf::Color::Red);
+        // gameMessage.setFont(font);
         lives= 3;
         for (int i=0; i<lives; i++)
         {
@@ -136,6 +145,9 @@ public:
     }
     void move(sf::Vector2f direction)
     {
+        if(lives>0)
+        {
+
         sprite.move(direction);
 
         if (sprite.getPosition().x <min_x){
@@ -145,10 +157,11 @@ public:
         {
             sprite.setPosition(max_x,600);
         }
+        }
     }
     void fire(int speed)
     {
-        if(lastShot+500<clock()){
+        if(lastShot+500<clock()&& lives>0){
         Antibody antibody(antibodyTexture, sprite.getPosition().x + sprite.getGlobalBounds().width*scale / 2, sprite.getPosition().y,speed);
         antibodies.push_back(antibody);
         lastShot= clock();
@@ -185,7 +198,7 @@ public:
         //        antibodies.erase( antibodies.begin() + i );
                 list.push_back(i);
                 std::cout << "shot" <<std::endl;
-                std::cout << antibodies.size() <<std::endl;
+                std::cout << lives <<std::endl;
                 result = true;
             }
         }
@@ -207,7 +220,13 @@ public:
         {
             redbloodcells.erase( redbloodcells.begin() + idx );
         }
-
+        lives = redbloodcells.size();
+        if(lives==0)
+        {
+            //sprite.scale(0.6,0.6);
+            sprite.rotate(0.1);
+            sprite.setPosition(300, 300);
+        }
         return result;
         //std::cout << antibodies.size() <<std::endl;
     }
@@ -273,7 +292,8 @@ public:
 
 int main() {
     std::vector<int> list;
-    sf::RenderWindow window(sf::VideoMode(800, 900), "Game V1.1");
+    //char path[]= "C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/";
+    sf::RenderWindow window(sf::VideoMode(800, 900), "Body Invasion");
 
     sf::Texture playerTexture;
     if (!playerTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/B_Cell.png")) {
@@ -343,7 +363,6 @@ int main() {
         infection.attack(100);
         infection.update();
 
-
        for(int i=0; i < player.antibodies.size(); i++){
            window.draw(player.antibodies[i].sprite);
        }
@@ -352,7 +371,8 @@ int main() {
            window.draw(RBC.sprite);
        }
        player.update();
- window.draw(player.sprite);
+       window.draw(player.sprite);
+       //window.draw(player.gameMessage);
        window.display();
     }
 
