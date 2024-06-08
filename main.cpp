@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <string.h>
-//#include <ctime>
 
 class Pathogen {
 public:
@@ -20,7 +19,6 @@ public:
         lastMove = clock();
         speed=v;
         delta_y = 0.1;
-        //delta_y=0;
     }
 
     void update() {
@@ -86,8 +84,6 @@ public:
         }
         if(sprite.getPosition().y <10)
         {
-           // sprite.setPosition(sprite.getPosition().x,10);
-            //sprite.setScale(0.1f,0.1f);
             result =true;
         }
         return result;
@@ -133,13 +129,6 @@ public:
         min_x =0;
         lastShot =clock();
         max_x=range_x;
-        // sf::Font font;
-        // font.loadFromFile("arial.ttf");
-        // gameMessage.setString("FIGHT AGAINST INFECTION!!");
-        // gameMessage.setPosition(10,10);
-        // gameMessage.setCharacterSize(24);
-        // gameMessage.setFillColor(sf::Color::Red);
-        // gameMessage.setFont(font);
         lives= 3;
         for (int i=0; i<lives; i++)
         {
@@ -179,14 +168,10 @@ public:
         for (auto& antibody : antibodies) {
             if(antibody.update())
             {
-                //list.push_back();
                 antibodies.erase(antibodies.begin() + idx);
-
             }
             idx++;
         }
-        // Remove off-screen antibodies
-       // antibodies.erase(std::remove_if(antibodies.begin(), antibodies.end(), [](const Antibody& a) { return a.sprite.getPosition().y < 0; }), antibodies.end());
     }
 
     bool checkCollision(Pathogen& p)
@@ -194,12 +179,10 @@ public:
         bool result = false;
         std::vector<int> list;
         list.clear();
-        //for (auto& antibody : antibodies) {
         for(int i=0; i < antibodies.size(); i++)
         {
             if (antibodies[i].checkCollision(p))
             {
-        //        antibodies.erase( antibodies.begin() + i );
                 list.push_back(i);
                 std::cout << "shot" <<std::endl;
                 std::cout << lives <<std::endl;
@@ -227,7 +210,6 @@ public:
         lives = redbloodcells.size();
         if(lives==0)
         {
-            //sprite.scale(0.6,0.6);
             sprite.rotate(0.1);
             sprite.setPosition(300, 300);
         }
@@ -255,19 +237,7 @@ public:
         lastInfection =clock();
         max_x=range_x;
     }
-    /*
-    void move(sf::Vector2f direction)
-    {
-        sprite.move(direction);
 
-        if (sprite.getPosition().x <min_x){
-            sprite.setPosition(0,600);
-        }
-        if (sprite.getPosition().x>max_x)
-        {
-            sprite.setPosition(max_x,600);
-        }
-    }*/
     void attack(int speed)
     {
         if(lastInfection+2000<clock()){
@@ -279,7 +249,6 @@ public:
             {
                 infection_x = 100;
             }
-            //infection_x = lastInfection%500;
         }
     }
 
@@ -287,18 +256,12 @@ public:
         for (auto& p : pathogens) {
             p.update();
         }
-        // Remove off-screen antibodies
-        // antibodies.erase(std::remove_if(antibodies.begin(), antibodies.end(), [](const Antibody& a) { return a.sprite.getPosition().y < 0; }), antibodies.end());
     }
-
-
 };
 
 int main() {
     std::vector<int> list;
     char path[]= "C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/";
-    //char hello_world = (char*)malloc(13  sizeof(char));
-    //sprintf(hello_world, "%s %s!", "Hello", "world");
     char buffer[1000];
 
     sf::RenderWindow window(sf::VideoMode(800, 900), "Body Invasion");
@@ -338,10 +301,6 @@ int main() {
     Player player(playerTexture, antibodyTexture,redBloodTexture,gameOverTexture,600);
     Infection infection(bacteriaTexture,500);
 
-    //sf::Sprite playerSprite(playerTexture);
-    //playerSprite.setPosition(200, 200);
-    //player.setScale(0.3f,0.3f);
-
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event))
@@ -367,15 +326,11 @@ int main() {
             player.fire(50);
         }
 
-
-
-
        window.clear(sf::Color::Black);
         list.clear();
         for(int i=0; i < infection.pathogens.size(); i++){
 
            if(player.checkCollision(infection.pathogens[i])){
-                //infection.pathogens.erase( infection.pathogens.begin() + i );
                list.push_back(i);
             }
            window.draw(infection.pathogens[i].sprite);
@@ -400,9 +355,9 @@ int main() {
        {
        window.draw(player.gameOver);
        }
-       //window.draw(player.gameMessage);
        window.display();
     }
 
     return 0;
+
 }
