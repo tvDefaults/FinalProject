@@ -37,7 +37,7 @@ public:
 class RBC {
 public:
     sf::Sprite sprite;
-    float scale =0.15;
+    float scale =0.1;
 
     RBC(const sf::Texture& texture, float x, float y) {
         sprite.setTexture(texture);
@@ -65,7 +65,7 @@ public:
     clock_t lastMove;
     int speed;
     float delta_y;
-    float scale =0.3;
+    float scale =0.1;
 
     Antibody(const sf::Texture& texture, float x, float y, int v) {
         sprite.setTexture(texture);
@@ -266,27 +266,27 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(800, 900), "Body Invasion");
 
-    sprintf(buffer,"%s%s",path,"B_Cell.png");
+    sprintf(buffer,"%s%s",path,"b_cell.2.png");
     sf::Texture playerTexture;
     //if (!playerTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/B_Cell.png")) {
     if (!playerTexture.loadFromFile(buffer))
     {
         return -1;
     }
-    sprintf(buffer,"%s%s",path,"antiBody.png");
+    sprintf(buffer,"%s%s",path,"anti.png");
     sf::Texture antibodyTexture;
    // if (!antibodyTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/antiBody.png"))
     if (!antibodyTexture.loadFromFile(buffer))
     {
         return -1;
     }
-    sprintf(buffer,"%s%s",path,"bacteria.png");
+    sprintf(buffer,"%s%s",path,"Germs.png");
     sf::Texture bacteriaTexture;
    // if (!bacteriaTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/bacteria.png"))
     if (!bacteriaTexture.loadFromFile(buffer)){
         return -1;
     }
-    sprintf(buffer,"%s%s",path,"backGround.jpg");
+    sprintf(buffer,"%s%s",path,"red-blood-cell.png");
     sf::Texture redBloodTexture;
     //if (!redBloodTexture.loadFromFile("C:/Users/jojo/OneDrive/Documents/FinalProject/new_Game/backGround.jpg"))
     if (!redBloodTexture.loadFromFile(buffer)){
